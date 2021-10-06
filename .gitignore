@@ -1,0 +1,7 @@
+# Ignore temp files
+
+temp.cpp
+
+# Ignore all executable files
+
+*.out
