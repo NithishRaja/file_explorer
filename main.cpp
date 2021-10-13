@@ -97,33 +97,97 @@ int main(){
   cout<<"\033[1;1H";
   // Initialise variable to hold y coordinate of cursor
   int y_coord = 1;
+  // Initialise buffer to hold command
+  char command_buffer[200];
+  int counter = 0;
 
   // Start REPL
   while(true){
     // Read input
     char ch = getchar();
-    if(ch == ':'){
-      cout<<"\033["<<max_row<<";1H";
-      cout<<":";
-    }else if(ch == 'k'){
-      cout<<'k';
-    }else if(ch == 'l'){
-      cout<<'l';
-    }else if(ch == 0x7f){
-      cout<<"back";
-    }else if(ch == 10){
-      cout<<"selected: "<<list[y_coord-1].name;
-    }else if(ch == 65){
-      // cout<<"up";
-      if(y_coord>0){
-        --y_coord;
-        cout<<"\033[A";
+    // Check mode
+    if(!command_mode){
+      if(ch == ':'){
+        // Switch mode
+        command_mode = true;
+        // Move cursor to bottom
+        cout<<"\033["<<max_row<<";1H";
+        // Update command buffer
+        command_buffer[counter++] = ':';
+        // Print command buffer
+        for(int i=0;i<counter;++i){
+          cout<<command_buffer[i];
+        }
+      }else if(ch == 'k'){
+        cout<<'k';
+      }else if(ch == 'l'){
+        cout<<'l';
+      }else if(ch == 0x7f){
+        cout<<"back";
+      }else if(ch == 10){
+        cout<<"selected: "<<list[y_coord-1].name;
+      }else if(ch == 65){
+        // cout<<"up";
+        if(y_coord>0){
+          --y_coord;
+          cout<<"\033[A";
+        }
+      }else if(ch == 66){
+        // cout<<"down";
+        if(y_coord<max_row-1 && y_coord<list_size){
+          ++y_coord;
+          cout<<"\033[B";
+        }
       }
-    }else if(ch == 66){
-      // cout<<"down";
-      if(y_coord<max_row-1 && y_coord<list_size){
-        ++y_coord;
-        cout<<"\033[B";
+    }else{
+      // Check if ESC is pressed
+      if(ch == 27){
+        // Switch mode
+        command_mode = false;
+        // Empty command buffer
+        counter = 0;
+        // Move cursor to bottom
+        cout<<"\033["<<max_row<<";1H";
+        for(int i=0;i<max_col;++i){
+          cout<<" ";
+        }
+        // Move cursor to original position
+        cout<<"\033["<<y_coord<<";1H";
+      }else if(ch == 10){
+        // Execute command
+        // Switch mode
+        command_mode = false;
+        // Empty command buffer
+        counter = 0;
+        // Move cursor to bottom
+        cout<<"\033["<<max_row<<";1H";
+        for(int i=0;i<max_col;++i){
+          cout<<" ";
+        }
+        // Move cursor to original position
+        cout<<"\033["<<y_coord<<";1H";
+      }else if(ch == 0x7f){
+        // Remove last character in command
+        --counter;
+        // Move cursor to bottom
+        cout<<"\033["<<max_row<<";1H";
+        // Clear command
+        for(int i=0;i<max_col-1;++i){
+          cout<<"";
+        }
+        // Print command buffer
+        for(int i=0;i<counter;++i){
+          cout<<command_buffer[i];
+        }
+      }else{
+        // Move cursor to bottom
+        cout<<"\033["<<max_row<<";1H";
+        // Update command buffer
+        command_buffer[counter++] = ch;
+        // Print command buffer
+        for(int i=0;i<counter;++i){
+          cout<<command_buffer[i];
+        }
       }
     }
   }
