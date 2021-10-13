@@ -18,27 +18,6 @@
 // Set namespace
 using namespace std;
 
-void print_list(vector<struct file_info_hr> list, int start, int window_size){
-  // Clear screen and place cursor at top left
-  cout<<"\033[2J\033[1;1H";
-  // Iterate over list
-  for(int i=start;i<list.size() && i-start<window_size;++i){
-    cout.width(12);
-    cout<<left<<list[i].permission;
-    cout.width(10);
-    cout<<left<<list[i].user;
-    cout.width(10);
-    cout<<left<<list[i].group;
-    cout.width(10);
-    cout<<left<<list[i].size;
-    cout.width(25);
-    cout<<left<<list[i].last_modified;
-    cout.width(10);
-    cout<<left<<list[i].name;
-    cout<<endl;
-  }
-}
-
 int main(){
   // Initialise object to parse path
   PathParser pp;
