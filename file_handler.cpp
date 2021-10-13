@@ -45,7 +45,8 @@ vector<struct file_info_hr> get_dir_content(char currdir[FILENAME_MAX]){
   if((dir = opendir(currdir)) != NULL){
     // Iterate over all files and directories in given directory
     while ((ent = readdir(dir)) != NULL){
-      if(stat(ent->d_name, &fileInfo) == 0){
+      stat(ent->d_name, &fileInfo);
+      if((fileInfo.st_mode & S_IRUSR) != 0){
         // Get last modified time of file
         char tim[80];
         convert_time_to_human_readable(fileInfo.st_mtime, tim);
@@ -77,6 +78,9 @@ vector<struct file_info_hr> get_dir_content(char currdir[FILENAME_MAX]){
         // Push struct into vector
         res.push_back(newfile);
       }
+      // if(stat(ent->d_name, &fileInfo) == 0){
+      //
+      // }
     }
     closedir(dir);
   }else{
