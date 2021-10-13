@@ -1,6 +1,6 @@
 # Ignore temp files
 
-temp.cpp
+temp*.cpp
 
 # Ignore all executable files
 
