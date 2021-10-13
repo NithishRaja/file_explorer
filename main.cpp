@@ -10,23 +10,27 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <termios.h>
+#include <string.h>
 // Local Dependencies
 #include "file_handler.cpp"
+#include "path_parser/path_parser.cpp"
 
 // Set namespace
 using namespace std;
 
 int main(){
-
-  // const char *homedir = pw->pw_dir;
-  // cout<<homedir<<endl;
   // char currdir[FILENAME_MAX]; //create string buffer to hold path
   // getcwd( currdir, FILENAME_MAX );
   // cout<<currdir<<endl;
   // strtok(currdir, "\n");
 
-  char currdir[FILENAME_MAX]; //create string buffer to hold path
+  // Create buffer to hold path
+  char currdir[FILENAME_MAX];
   getcwd( currdir, FILENAME_MAX );
+  // Parse path
+  string temp(currdir);
+  temp = pp.parse(temp);
+  strcpy(currdir, temp.c_str());
 
   vector<struct file_info_hr> list = get_dir_content(currdir);
 
