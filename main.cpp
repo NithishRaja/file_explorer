@@ -19,6 +19,13 @@
 using namespace std;
 
 int main(){
+  // Initialise object to parse path
+  PathParser pp;
+  // Initialise buffer to hold home path
+  struct passwd *pw = getpwuid(getuid());
+  char homedir[256];
+  strcpy(homedir, pw->pw_dir);
+  
   // char currdir[FILENAME_MAX]; //create string buffer to hold path
   // getcwd( currdir, FILENAME_MAX );
   // cout<<currdir<<endl;
