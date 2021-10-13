@@ -18,11 +18,11 @@
 // Set namespace
 using namespace std;
 
-void print_list(vector<struct file_info_hr> list){
+void print_list(vector<struct file_info_hr> list, int start, int window_size){
   // Clear screen and place cursor at top left
   cout<<"\033[2J\033[1;1H";
   // Iterate over list
-  for(int i=0;i<list.size();++i){
+  for(int i=start;i<list.size() && i-start<window_size;++i){
     cout.width(12);
     cout<<left<<list[i].permission;
     cout.width(10);
@@ -90,9 +90,11 @@ int main(){
   int max_col = w.ws_col;
   // Get list size
   int list_size = list.size();
+  // Initialise variable to hold window start
+  int window_start = 0;
 
   // Call function to print list of files and directories
-  print_list(list);
+  print_list(list, window_start, max_row-1);
   // Move cursor back to top left
   cout<<"\033[1;1H";
   // Initialise variable to hold y coordinate of cursor
@@ -119,24 +121,41 @@ int main(){
           cout<<command_buffer[i];
         }
       }else if(ch == 'k'){
-        cout<<'k';
+        // Update window start
+        if(window_start > 0){
+          --window_start;
+          print_list(list, window_start, max_row-1);
+          // cout<<"up";
+          if(y_coord<max_row-1){
+            ++y_coord;
+          }
+          cout<<"\033["<<y_coord<<";1H";
+        }
       }else if(ch == 'l'){
-        cout<<'l';
+        if(window_start + max_row-1 < list_size){
+          ++window_start;
+          print_list(list, window_start, max_row-1);
+          // cout<<"down";
+          if(y_coord>1){
+            --y_coord;
+          }
+          cout<<"\033["<<y_coord<<";1H";
+        }
       }else if(ch == 0x7f){
         cout<<"back";
       }else if(ch == 10){
         cout<<"selected: "<<list[y_coord-1].name;
       }else if(ch == 65){
         // cout<<"up";
-        if(y_coord>0){
+        if(y_coord>1){
           --y_coord;
-          cout<<"\033[A";
+          cout<<"\033["<<y_coord<<";1H";
         }
       }else if(ch == 66){
         // cout<<"down";
         if(y_coord<max_row-1 && y_coord<list_size){
           ++y_coord;
-          cout<<"\033[B";
+          cout<<"\033["<<y_coord<<";1H";
         }
       }
     }else{
