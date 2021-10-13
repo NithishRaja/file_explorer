@@ -121,9 +121,41 @@ int main(){
           cout<<"\033["<<y_coord<<";1H";
         }
       }else if(ch == 0x7f){
-        cout<<"back";
+        // Parse path
+        string tempstr(currdir);
+        tempstr = pp.parse(tempstr+"/../");
+        strcpy(currdir, tempstr.c_str());
+        // Call function to get list of files and directories
+        list = get_dir_content(currdir);
+        // Calculate list size
+        list_size = list.size();
+        // Reset y_coord
+        y_coord = 1;
+        // Reset window start
+        window_start = 0;
+        // Call function to print list
+        print_list(list, window_start, max_row-1);
+        cout<<"\033["<<y_coord<<";1H";
       }else if(ch == 10){
-        cout<<"selected: "<<list[y_coord-1].name;
+        // Get selected index
+        int selected_index = window_start + y_coord-1;
+        // Parse path
+        string tempstr(currdir);
+        tempstr = tempstr+"/";
+        string tempname(list[selected_index].name);
+        tempstr = pp.parse(tempstr+tempname);
+        strcpy(currdir, tempstr.c_str());
+        // Call function to get list of files and directories
+        list = get_dir_content(currdir);
+        // Calculate list size
+        list_size = list.size();
+        // Reset y_coord
+        y_coord = 1;
+        // Reset window start
+        window_start = 0;
+        // Call function to print list
+        print_list(list, window_start, max_row-1);
+        cout<<"\033["<<y_coord<<";1H";
       }else if(ch == 65){
         // cout<<"up";
         if(y_coord>1){
