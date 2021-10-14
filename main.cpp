@@ -14,6 +14,7 @@
 // Local Dependencies
 #include "file_handler.cpp"
 #include "path_parser/path_parser.cpp"
+#include "window_state/window_state.cpp"
 
 // Set namespace
 using namespace std;
@@ -62,22 +63,20 @@ int main(){
   // Initialise flag to track current mode
   bool command_mode = false;
 
-  // Get window dimensions
-  struct winsize w;
-  ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
-  int max_row = w.ws_row;
-  int max_col = w.ws_col;
+  // Initialise struct for handling window state
+  struct window_state window;
+  // Call function to initialise window state
+  initialise_window_state(&window);
+
   // Get list size
   int list_size = list.size();
   // Initialise variable to hold window start
   int window_start = 0;
 
   // Call function to print list of files and directories
-  print_list(list, window_start, max_row-1);
+  print_list(list, window_start, window.max_row-1);
   // Move cursor back to top left
   cout<<"\033[1;1H";
-  // Initialise variable to hold y coordinate of cursor
-  int y_coord = 1;
   // Initialise buffer to hold command
   char command_buffer[200];
   int counter = 0;
@@ -92,7 +91,7 @@ int main(){
         // Switch mode
         command_mode = true;
         // Move cursor to bottom
-        cout<<"\033["<<max_row<<";1H";
+        move_cursor_to_bottom(&window);
         // Update command buffer
         command_buffer[counter++] = ':';
         // Print command buffer
@@ -103,22 +102,14 @@ int main(){
         // Update window start
         if(window_start > 0){
           --window_start;
-          print_list(list, window_start, max_row-1);
-          // cout<<"up";
-          if(y_coord<max_row-1){
-            ++y_coord;
-          }
-          cout<<"\033["<<y_coord<<";1H";
+          print_list(list, window_start, window.max_row-1);
+          move_cursor_down(&window);
         }
       }else if(ch == 'l'){
-        if(window_start + max_row-1 < list_size){
+        if(window_start + window.max_row-1 < list_size){
           ++window_start;
-          print_list(list, window_start, max_row-1);
-          // cout<<"down";
-          if(y_coord>1){
-            --y_coord;
-          }
-          cout<<"\033["<<y_coord<<";1H";
+          print_list(list, window_start, window.max_row-1);
+          move_cursor_up(&window);
         }
       }else if(ch == 0x7f){
         // Parse path
@@ -129,16 +120,16 @@ int main(){
         list = get_dir_content(currdir);
         // Calculate list size
         list_size = list.size();
-        // Reset y_coord
-        y_coord = 1;
+        // Call function to reset cursor
+        reset_cursor(&window);
         // Reset window start
         window_start = 0;
         // Call function to print list
-        print_list(list, window_start, max_row-1);
-        cout<<"\033["<<y_coord<<";1H";
+        print_list(list, window_start, window.max_row-1);
+        cout<<"\033["<<window.y_coord<<";1H";
       }else if(ch == 10){
         // Get selected index
-        int selected_index = window_start + y_coord-1;
+        int selected_index = window_start + window.y_coord-1;
         // Parse path
         string tempstr(currdir);
         tempstr = tempstr+"/";
@@ -149,24 +140,19 @@ int main(){
         list = get_dir_content(currdir);
         // Calculate list size
         list_size = list.size();
-        // Reset y_coord
-        y_coord = 1;
+        // Call function to reset cursor
+        reset_cursor(&window);
         // Reset window start
         window_start = 0;
         // Call function to print list
-        print_list(list, window_start, max_row-1);
-        cout<<"\033["<<y_coord<<";1H";
+        print_list(list, window_start, window.max_row-1);
+        cout<<"\033["<<window.y_coord<<";1H";
       }else if(ch == 65){
-        // cout<<"up";
-        if(y_coord>1){
-          --y_coord;
-          cout<<"\033["<<y_coord<<";1H";
-        }
+        move_cursor_up(&window);
       }else if(ch == 66){
-        // cout<<"down";
-        if(y_coord<max_row-1 && y_coord<list_size){
-          ++y_coord;
-          cout<<"\033["<<y_coord<<";1H";
+        // Check if cursor position is within list
+        if(window.y_coord < list_size){
+          move_cursor_down(&window);
         }
       }
     }else{
@@ -177,12 +163,13 @@ int main(){
         // Empty command buffer
         counter = 0;
         // Move cursor to bottom
-        cout<<"\033["<<max_row<<";1H";
-        for(int i=0;i<max_col;++i){
+        move_cursor_to_bottom(&window);
+        // cout<<"\033["<<max_row<<";1H";
+        for(int i=0;i<window.max_col;++i){
           cout<<" ";
         }
         // Move cursor to original position
-        cout<<"\033["<<y_coord<<";1H";
+        cout<<"\033["<<window.y_coord<<";1H";
       }else if(ch == 10){
         // Execute command
         // Switch mode
@@ -190,19 +177,19 @@ int main(){
         // Empty command buffer
         counter = 0;
         // Move cursor to bottom
-        cout<<"\033["<<max_row<<";1H";
-        for(int i=0;i<max_col;++i){
+        cout<<"\033["<<window.max_row<<";1H";
+        for(int i=0;i<window.max_col;++i){
           cout<<" ";
         }
         // Move cursor to original position
-        cout<<"\033["<<y_coord<<";1H";
+        cout<<"\033["<<window.y_coord<<";1H";
       }else if(ch == 0x7f){
         // Remove last character in command
         --counter;
         // Move cursor to bottom
-        cout<<"\033["<<max_row<<";1H";
+        cout<<"\033["<<window.max_row<<";1H";
         // Clear command
-        for(int i=0;i<max_col-1;++i){
+        for(int i=0;i<window.max_col-1;++i){
           cout<<"";
         }
         // Print command buffer
@@ -211,7 +198,7 @@ int main(){
         }
       }else{
         // Move cursor to bottom
-        cout<<"\033["<<max_row<<";1H";
+        cout<<"\033["<<window.max_row<<";1H";
         // Update command buffer
         command_buffer[counter++] = ch;
         // Print command buffer
