@@ -87,6 +87,10 @@ int main(){
   while(true){
     // Read input
     char ch = getchar();
+    // Exit when q is pressed
+    if(ch == 'q'){
+      break;
+    }
     // Check mode
     if(!command_mode){
       if(ch == ':'){
