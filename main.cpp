@@ -15,6 +15,7 @@
 #include "file_handler.cpp"
 #include "path_parser/pp_wrapper.cpp"
 #include "window_state/window_state.cpp"
+#include "breadcrumb/breadcrumb.cpp"
 
 // Set namespace
 using namespace std;
@@ -28,10 +29,15 @@ int main(){
   char currdir[FILENAME_MAX];
   getcwd(currdir, FILENAME_MAX);
 
+  // Initialise breadcrumb
+  Breadcrumb history;
+
   // Call function to parse current path
   parse_path(currdir);
   // Call function to get list
   vector<struct file_info_hr> list = get_dir_content(currdir);
+  // Update history
+  history.push(currdir);
 
   // Initialise port
   int serial_port = open("/dev/tty", O_RDWR);
@@ -108,6 +114,8 @@ int main(){
           move_cursor_up(&window);
         }
       }else if(ch == 'h'){
+        // Update history
+        history.push(homedir);
         // Call function to get list of files and directories
         list = get_dir_content(homedir);
         // Calculate list size
@@ -122,6 +130,8 @@ int main(){
       }else if(ch == 0x7f){
         // Call function to get path of parent directory
         get_parent_path(currdir);
+        // Update history
+        history.push(currdir);
         // Call function to get list of files and directories
         list = get_dir_content(currdir);
         // Calculate list size
@@ -138,6 +148,8 @@ int main(){
         int selected_index = window_start + window.y_coord-1;
         // cCall function to get path of child directory
         get_child_path(currdir, list[selected_index].name);
+        // Update history
+        history.push(currdir);
         // Call function to get list of files and directories
         list = get_dir_content(currdir);
         // Calculate list size
@@ -156,6 +168,38 @@ int main(){
         if(window.y_coord < list_size){
           move_cursor_down(&window);
         }
+      }else if(ch == 67){
+        // Call function to move to next history state
+        history.move_to_next();
+        // Get history state
+        history.current(currdir);
+        // Call function to get list of files and directories
+        list = get_dir_content(currdir);
+        // Calculate list size
+        list_size = list.size();
+        // Call function to reset cursor
+        reset_cursor(&window);
+        // Reset window start
+        window_start = 0;
+        // Call function to print list
+        print_list(list, window_start, window.max_row-1);
+        cout<<"\033["<<window.y_coord<<";1H";
+      }else if(ch == 68){
+        // Call function to move to previous history state
+        history.move_to_previous();
+        // Get history state
+        history.current(currdir);
+        // Call function to get list of files and directories
+        list = get_dir_content(currdir);
+        // Calculate list size
+        list_size = list.size();
+        // Call function to reset cursor
+        reset_cursor(&window);
+        // Reset window start
+        window_start = 0;
+        // Call function to print list
+        print_list(list, window_start, window.max_row-1);
+        cout<<"\033["<<window.y_coord<<";1H";
       }
     }else{
       // Check if ESC is pressed
