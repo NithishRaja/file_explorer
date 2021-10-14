@@ -16,6 +16,7 @@
 #include "path_parser/pp_wrapper.cpp"
 #include "window_state/window_state.cpp"
 #include "breadcrumb/breadcrumb.cpp"
+#include "command_state/command_state.cpp"
 
 // Set namespace
 using namespace std;
@@ -62,8 +63,10 @@ int main(){
       printf("Error %i from tcsetattr: %s\n", errno, strerror(errno));
   }
 
-  // Initialise flag to track current mode
-  bool command_mode = false;
+  // Initialise struct for handling command mode
+  struct command_state c_state;
+  // Call function to initialise command state
+  reset_command_state(&c_state);
 
   // Initialise struct for handling window state
   struct window_state window;
@@ -79,30 +82,26 @@ int main(){
   print_list(list, window_start, window.max_row-1);
   // Move cursor back to top left
   cout<<"\033[1;1H";
-  // Initialise buffer to hold command
-  char command_buffer[200];
-  int counter = 0;
 
   // Start REPL
   while(true){
     // Read input
     char ch = getchar();
-    // Exit when q is pressed
-    if(ch == 'q'){
-      break;
-    }
     // Check mode
-    if(!command_mode){
-      if(ch == ':'){
-        // Switch mode
-        command_mode = true;
+    if(!c_state.command_mode_active){
+      // Exit when q is pressed
+      if(ch == 'q'){
+        break;
+      }else if(ch == ':'){
         // Move cursor to bottom
         move_cursor_to_bottom(&window);
+        // Switch mode
+        turn_on_command_mode(&c_state);
         // Update command buffer
-        command_buffer[counter++] = ':';
+        update_command_push(':', &c_state);
         // Print command buffer
-        for(int i=0;i<counter;++i){
-          cout<<command_buffer[i];
+        for(int i=0;i<c_state.counter;++i){
+          cout<<c_state.command[i];
         }
       }else if(ch == 'k'){
         // Update window start
@@ -221,9 +220,9 @@ int main(){
       // Check if ESC is pressed
       if(ch == 27){
         // Switch mode
-        command_mode = false;
-        // Empty command buffer
-        counter = 0;
+        turn_off_command_mode(&c_state);
+        // Call function to reset command state
+        reset_command_state(&c_state);
         // Move cursor to bottom
         move_cursor_to_bottom(&window);
         // cout<<"\033["<<max_row<<";1H";
@@ -235,9 +234,9 @@ int main(){
       }else if(ch == 10){
         // Execute command
         // Switch mode
-        command_mode = false;
-        // Empty command buffer
-        counter = 0;
+        turn_off_command_mode(&c_state);
+        // Call function to reset command state
+        reset_command_state(&c_state);
         // Move cursor to bottom
         cout<<"\033["<<window.max_row<<";1H";
         for(int i=0;i<window.max_col;++i){
@@ -246,26 +245,28 @@ int main(){
         // Move cursor to original position
         cout<<"\033["<<window.y_coord<<";1H";
       }else if(ch == 0x7f){
-        // Remove last character in command
-        --counter;
+        // Call function to remove last character in command
+        update_command_pop(&c_state);
         // Move cursor to bottom
         cout<<"\033["<<window.max_row<<";1H";
         // Clear command
-        for(int i=0;i<window.max_col-1;++i){
-          cout<<"";
+        for(int i=0;i<window.max_col;++i){
+          cout<<" ";
         }
+        // Move cursor to bottom
+        cout<<"\033["<<window.max_row<<";1H";
         // Print command buffer
-        for(int i=0;i<counter;++i){
-          cout<<command_buffer[i];
+        for(int i=0;i<c_state.counter;++i){
+          cout<<c_state.command[i];
         }
       }else{
         // Move cursor to bottom
         cout<<"\033["<<window.max_row<<";1H";
-        // Update command buffer
-        command_buffer[counter++] = ch;
+        // Call function to update command state
+        update_command_push(ch, &c_state);
         // Print command buffer
-        for(int i=0;i<counter;++i){
-          cout<<command_buffer[i];
+        for(int i=0;i<c_state.counter;++i){
+          cout<<c_state.command[i];
         }
       }
     }
