@@ -5,6 +5,11 @@
 
 // Dependencies
 #include <sys/types.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <sys/types.h>
+#include <stdlib.h>
 #include <sstream>
 #include <iostream>
 #include <string.h>
@@ -54,4 +59,24 @@ void convert_permission_to_human_readable(mode_t perm, char permbuf[80]){
   modeval[10] = '\0';
   string res(modeval);
   strcpy(permbuf, res.c_str());
+}
+
+// Function to open file in editor
+void open_in_editor(char path[FILENAME_MAX]){
+  char* args[3];
+  string cmd = "vi";
+  args[0] = (char*)cmd.c_str();
+  args[1] = path;
+  args[2] = NULL;
+  // Call fork
+  pid_t pid = fork();
+  // Check if child process
+  if(pid == 0){
+    if(execvp(args[0], args) == -1){
+      perror("exec");
+    }
+  }else{
+    // Wait for child process
+    wait(0);
+  }
 }

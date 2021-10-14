@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
+#include <string.h>
 #include <pwd.h>
 #include <grp.h>
 #ifdef WINDOWS
@@ -29,6 +30,7 @@ struct file_info_hr {
   char size[80];
   char last_modified[80];
   char name[256];
+  bool is_dir;
 };
 
 // Function to get vector containing info on all files and directories in given directory
@@ -45,8 +47,15 @@ vector<struct file_info_hr> get_dir_content(char currdir[FILENAME_MAX]){
   if((dir = opendir(currdir)) != NULL){
     // Iterate over all files and directories in given directory
     while ((ent = readdir(dir)) != NULL){
-      stat(ent->d_name, &fileInfo);
-      if((fileInfo.st_mode & S_IRUSR) != 0){
+      // Get full path
+      string temp(currdir);
+      temp = temp+"/";
+      string tempname(ent->d_name);
+      temp = temp+tempname;
+      char fullpath[4096];
+      strcpy(fullpath, temp.c_str());
+      // Check if user has permissions
+      if((stat(fullpath, &fileInfo) == 0) && ((fileInfo.st_mode & S_IRUSR) != 0)){
         // Get last modified time of file
         char tim[80];
         convert_time_to_human_readable(fileInfo.st_mtime, tim);
@@ -62,6 +71,12 @@ vector<struct file_info_hr> get_dir_content(char currdir[FILENAME_MAX]){
         struct group  *gr = getgrgid(fileInfo.st_gid);
         // Initialize struct to hold file info
         struct file_info_hr newfile;
+        // Update file or directory indicator
+        if(fileInfo.st_mode & S_IFDIR){
+          newfile.is_dir = true;
+        }else{
+          newfile.is_dir = false;
+        }
         // Add file info to struct
         strcpy(newfile.name, ent->d_name);
         // newfile.name = ent->d_name;

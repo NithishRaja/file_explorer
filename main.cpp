@@ -146,21 +146,33 @@ int main(){
       }else if(ch == 10){
         // Get selected index
         int selected_index = window_start + window.y_coord-1;
-        // cCall function to get path of child directory
-        get_child_path(currdir, list[selected_index].name);
-        // Update history
-        history.push(currdir);
-        // Call function to get list of files and directories
-        list = get_dir_content(currdir);
-        // Calculate list size
-        list_size = list.size();
-        // Call function to reset cursor
-        reset_cursor(&window);
-        // Reset window start
-        window_start = 0;
-        // Call function to print list
-        print_list(list, window_start, window.max_row-1);
-        cout<<"\033["<<window.y_coord<<";1H";
+        // Check if selected path is a directory
+        if(list[selected_index].is_dir){
+          // Call function to get path of child directory
+          get_child_path(currdir, list[selected_index].name);
+          // Update history
+          history.push(currdir);
+          // Call function to get list of files and directories
+          list = get_dir_content(currdir);
+          // Calculate list size
+          list_size = list.size();
+          // Call function to reset cursor
+          reset_cursor(&window);
+          // Reset window start
+          window_start = 0;
+          // Call function to print list
+          print_list(list, window_start, window.max_row-1);
+          cout<<"\033["<<window.y_coord<<";1H";
+        }else{
+          // Declare variable to hold file path
+          char file_path[FILENAME_MAX];
+          // Copy current path
+          strcpy(file_path, currdir);
+          // Call function to get path of child directory
+          get_child_path(file_path, list[selected_index].name);
+          // Call function to open file in editor
+          open_in_editor(file_path);
+        }
       }else if(ch == 65){
         move_cursor_up(&window);
       }else if(ch == 66){
