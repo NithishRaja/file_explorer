@@ -4,6 +4,8 @@
   */
 
 // Dependencies
+#include <iostream>
+#include <fstream>
 #include <vector>
 #include <queue>
 #include <dirent.h>
@@ -211,4 +213,15 @@ void print_list(vector<struct file_info_hr> list, int start, int window_size){
     cout<<left<<list[i].name;
     cout<<endl;
   }
+}
+
+// Function to create a file
+void create_file(char path[FILENAME_MAX]){
+  fstream fs;
+  fs.open(path, fstream::in | fstream::out | fstream::trunc);
+  fs.close();
+}
+
+void create_directory(char path[FILENAME_MAX]){
+  int res = mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 }

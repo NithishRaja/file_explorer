@@ -282,6 +282,70 @@ class WindowHandler {
             // Print status
             cout<<"\033["<<window.max_row<<";1H";
             cout<<found;
+            cout<<"\033["<<window.y_coord<<";1H";
+          }else if(c_state.command[1] == 'c'
+          && c_state.command[2] == 'r'
+          && c_state.command[3] == 'e'
+          && c_state.command[4] == 'a'
+          && c_state.command[5] == 't'
+          && c_state.command[6] == 'e'
+          && c_state.command[7] == '_'
+          && c_state.command[8] == 'f'
+          && c_state.command[9] == 'i'
+          && c_state.command[10] == 'l'
+          && c_state.command[11] == 'e'){
+            // Initialise buffer to hold parameter
+            char param[COMMAND_MAX_LENGTH];
+            param[0] = 0;
+            // Call function to get first parameter
+            get_command_first_argument(param, &c_state);
+            // Call function to create file
+            char temp_path[FILENAME_MAX];
+            // Check if path is absolute
+            if(param[0] == '/' || param[0] == '~'){
+              strcpy(temp_path, param);
+              parse_path(temp_path);
+            }else{
+              strcpy(temp_path, currdir);
+              // Call function to get absolute path
+              get_child_path(temp_path, param);
+            }
+            // Call function to create file
+            create_file(temp_path);
+            // Clear command
+            clear_command_line();
+            populate_screen(currdir);
+          }else if(c_state.command[1] == 'c'
+          && c_state.command[2] == 'r'
+          && c_state.command[3] == 'e'
+          && c_state.command[4] == 'a'
+          && c_state.command[5] == 't'
+          && c_state.command[6] == 'e'
+          && c_state.command[7] == '_'
+          && c_state.command[8] == 'd'
+          && c_state.command[9] == 'i'
+          && c_state.command[10] == 'r'){
+            // Initialise buffer to hold parameter
+            char param[COMMAND_MAX_LENGTH];
+            param[0] = 0;
+            // Call function to get first parameter
+            get_command_first_argument(param, &c_state);
+            // Call function to create file
+            char temp_path[FILENAME_MAX];
+            // Check if path is absolute
+            if(param[0] == '/' || param[0] == '~'){
+              strcpy(temp_path, param);
+              parse_path(temp_path);
+            }else{
+              strcpy(temp_path, currdir);
+              // Call function to get absolute path
+              get_child_path(temp_path, param);
+            }
+            // Call function to create directory
+            create_directory(temp_path);
+            // Clear command
+            clear_command_line();
+            populate_screen(currdir);
           }else{
             clear_command_line();
             cout<<"\033["<<window.y_coord<<";1H";
