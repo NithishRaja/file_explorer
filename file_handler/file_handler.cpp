@@ -225,3 +225,7 @@ void create_file(char path[FILENAME_MAX]){
 void create_directory(char path[FILENAME_MAX]){
   int res = mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 }
+
+void delete_file(char path[FILENAME_MAX]){
+  int res = unlink(path);
+}
