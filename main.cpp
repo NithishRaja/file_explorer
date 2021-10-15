@@ -232,7 +232,36 @@ int main(){
         // Move cursor to original position
         cout<<"\033["<<window.y_coord<<";1H";
       }else if(ch == 10){
-        // Execute command
+        // Check for goto command
+        if(c_state.command[1] == 'g' && c_state.command[2] == 'o' && c_state.command[3] == 't' && c_state.command[4] == 'o'){
+          // Initialise buffer to hold parameter
+          char param[COMMAND_MAX_LENGTH];
+          // Call function to get first parameter
+          get_command_first_argument(param, &c_state);
+          char temp_path[FILENAME_MAX];
+          // Check if path is absolute
+          if(param[0] == '/' || param[0] == '~'){
+            strcpy(temp_path, param);
+            parse_path(temp_path);
+          }else{
+            strcpy(temp_path, currdir);
+            // Call function to get absolute path
+            get_child_path(temp_path, param);
+          }
+          // Update history
+          history.push(temp_path);
+          // Call function to get list of files and directories
+          list = get_dir_content(temp_path);
+          // Calculate list size
+          list_size = list.size();
+          // Call function to reset cursor
+          reset_cursor(&window);
+          // Reset window start
+          window_start = 0;
+          // Call function to print list
+          print_list(list, window_start, window.max_row-1);
+          cout<<"\033["<<window.y_coord<<";1H";
+        }
         // Switch mode
         turn_off_command_mode(&c_state);
         // Call function to reset command state

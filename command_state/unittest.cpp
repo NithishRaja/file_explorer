@@ -76,7 +76,7 @@ void test_command_get_first_param(){
   // Declare variable to store output
   char output[COMMAND_MAX_LENGTH];
   // Call function to get full command
-  get_first_argument(output, &state);
+  get_command_first_argument(output, &state);
   // Initialise expected output
   char expected_output1[] = {'~', '/'};
   // Initialise flag
@@ -95,7 +95,7 @@ void test_command_get_first_param(){
     update_command_push(input[i], &state);
   }
   // Call function to get full command
-  get_first_argument(output, &state);
+  get_command_first_argument(output, &state);
   // Initialise expected output
   char expected_output2[] = {'~', '/', 'h', 'o', 'm', 'e'};
   // Check output
