@@ -5,6 +5,7 @@
 
 // Dependencies
 #include <iostream>
+#include <vector>
 // Local Dependencies
 #include "command_state.cpp"
 
@@ -150,8 +151,35 @@ void test_command_get_second_param(){
   print_status
 }
 
+void test_command_get_all_param(){
+  // Initialise state
+  struct command_state state;
+  // Call function to initialise command state
+  reset_command_state(&state);
+  // Initialise input
+  string inp = ":move file1 file2 file3 file4 ~/";
+  char input[COMMAND_MAX_LENGTH];
+  strcpy(input, inp.c_str());
+  // Add entries
+  for(int i=0;i<sizeof(input)/sizeof(input[0]);++i){
+    update_command_push(input[i], &state);
+  }
+  // Call function to get output
+  vector<string> output = get_command_all_argument(&state);
+  // Initialise expected output
+  string expected_output[] = {"file1", "file2", "file3", "file4", "~/"};
+  // Initialise flag
+  bool flag = true;
+  // Check output
+  for(int i=0;i<output.size();++i){
+    flag = flag && (expected_output[i] == output[i]);
+  }
+  print_status
+}
+
 int main(){
   test_command_state_push_pop();
   test_command_get_first_param();
   test_command_get_second_param();
+  test_command_get_all_param();
 }

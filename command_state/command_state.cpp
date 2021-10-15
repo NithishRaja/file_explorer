@@ -5,6 +5,7 @@
 
 // Dependencies
 #include <iostream>
+#include <vector>
 #include <string.h>
 
 // Set namespace
@@ -100,4 +101,30 @@ void get_command_second_argument(char output_buffer[COMMAND_MAX_LENGTH], struct 
     ++i;
   }
   output_buffer[j] = 0;
+}
+
+vector<string> get_command_all_argument(struct command_state* state){
+  // Initialise vector
+  vector<string> res;
+  // Traverse command till first blank space is encountered
+  int i=0;
+  while(state->command[i] != ' ' && i<state->counter){
+    ++i;
+  }
+  while(i<state->counter){
+    char output_buffer[COMMAND_MAX_LENGTH];
+    output_buffer[0] = 0;
+    // Traverse command till second blank space is encountered
+    ++i;
+    int j=0;
+    while(state->command[i] != ' ' && i<state->counter){
+      output_buffer[j] = state->command[i];
+      ++j;
+      ++i;
+    }
+    output_buffer[j] = 0;
+    string temp(output_buffer);
+    res.push_back(temp);
+  }
+  return res;
 }
