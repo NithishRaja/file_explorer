@@ -418,6 +418,68 @@ class WindowHandler {
             // Clear command
             clear_command_line();
             populate_screen(currdir);
+          }else if(c_state.command[1] == 'c'
+          && c_state.command[2] == 'o'
+          && c_state.command[3] == 'p'
+          && c_state.command[4] == 'y'){
+            // Get all parameters
+            vector<string> params = get_command_all_argument(&c_state);
+            int last_index = params.size()-1;
+            // Get last parameter
+            char dest_param[COMMAND_MAX_LENGTH];
+            strcpy(dest_param, params[last_index].c_str());
+            // Convert last param to absolute path
+            char dest_dir[FILENAME_MAX];
+            convert_to_absolute_path(dest_dir, dest_param);
+            // Traverse over remaining params
+            for(int i=0;i<last_index;++i){
+              // Get current param
+              char file_name[COMMAND_MAX_LENGTH];
+              strcpy(file_name, params[i].c_str());
+              // Convert current param to absolute path
+              char source_path[FILENAME_MAX];
+              convert_to_absolute_path(source_path, file_name);
+              // Get destination path
+              char dest_file[FILENAME_MAX];
+              strcpy(dest_file, dest_dir);
+              get_child_path(dest_file, file_name);
+              // Call function to copy file
+              copy_file(source_path, dest_file);
+            }
+            // Clear command
+            clear_command_line();
+            populate_screen(currdir);
+          }else if(c_state.command[1] == 'm'
+          && c_state.command[2] == 'o'
+          && c_state.command[3] == 'v'
+          && c_state.command[4] == 'e'){
+            // Get all parameters
+            vector<string> params = get_command_all_argument(&c_state);
+            int last_index = params.size()-1;
+            // Get last parameter
+            char dest_param[COMMAND_MAX_LENGTH];
+            strcpy(dest_param, params[last_index].c_str());
+            // Convert last param to absolute path
+            char dest_dir[FILENAME_MAX];
+            convert_to_absolute_path(dest_dir, dest_param);
+            // Traverse over remaining params
+            for(int i=0;i<last_index;++i){
+              // Get current param
+              char file_name[COMMAND_MAX_LENGTH];
+              strcpy(file_name, params[i].c_str());
+              // Convert current param to absolute path
+              char source_path[FILENAME_MAX];
+              convert_to_absolute_path(source_path, file_name);
+              // Get destination path
+              char dest_file[FILENAME_MAX];
+              strcpy(dest_file, dest_dir);
+              get_child_path(dest_file, file_name);
+              // Call function to copy file
+              move_file(source_path, dest_file);
+            }
+            // Clear command
+            clear_command_line();
+            populate_screen(currdir);
           }else{
             clear_command_line();
             cout<<"\033["<<window.y_coord<<";1H";

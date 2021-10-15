@@ -274,3 +274,39 @@ void delete_directory(char path[FILENAME_MAX]){
 void rename_entry(char old[FILENAME_MAX], char updated[FILENAME_MAX]){
   int res = rename(old, updated);
 }
+
+void copy_file(char source_file[FILENAME_MAX], char dest_file[FILENAME_MAX]){
+  // Call function to create file at destination
+  create_file(dest_file);
+  // Open source file for reading
+  fstream f_source;
+  f_source.open(source_file, fstream::in);
+  // Open source file for writing
+  fstream f_dest;
+  f_dest.open(dest_file, fstream::out | fstream::trunc);
+  // Check if both files are open
+  if(f_source.is_open() && f_dest.is_open()){
+    // Copy data
+    string str;
+    while(getline(f_source, str)){
+      f_dest<<str;
+    }
+    // Copy owner and permissions
+    struct stat st;
+    stat(source_file, &st);
+    // Update user and group
+    chown(dest_file, st.st_uid, st.st_gid);
+    // Update permissions
+    chmod(dest_file, st.st_mode);
+  }
+  // Close files
+  f_source.close();
+  f_dest.close();
+}
+
+void move_file(char source_file[FILENAME_MAX], char dest_file[FILENAME_MAX]){
+  // Call function to copy file
+  copy_file(source_file, dest_file);
+  // Call function to delete source file
+  delete_file(source_file);
+}
