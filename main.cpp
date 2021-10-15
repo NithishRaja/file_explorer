@@ -295,21 +295,27 @@ class WindowHandler {
           && c_state.command[10] == 'l'
           && c_state.command[11] == 'e'){
             // Initialise buffer to hold parameter
-            char param[COMMAND_MAX_LENGTH];
-            param[0] = 0;
+            char param1[COMMAND_MAX_LENGTH];
+            param1[0] = 0;
+            char param2[COMMAND_MAX_LENGTH];
+            param2[0] = 0;
             // Call function to get first parameter
-            get_command_first_argument(param, &c_state);
+            get_command_first_argument(param1, &c_state);
+            // Call function to get second parameter
+            get_command_second_argument(param2, &c_state);
             // Call function to create file
             char temp_path[FILENAME_MAX];
             // Check if path is absolute
-            if(param[0] == '/' || param[0] == '~'){
-              strcpy(temp_path, param);
+            if(param2[0] == '/' || param2[0] == '~'){
+              strcpy(temp_path, param2);
               parse_path(temp_path);
             }else{
               strcpy(temp_path, currdir);
               // Call function to get absolute path
-              get_child_path(temp_path, param);
+              get_child_path(temp_path, param2);
             }
+            // Call function to get absolute path
+            get_child_path(temp_path, param1);
             // Call function to create file
             create_file(temp_path);
             // Clear command
@@ -326,21 +332,27 @@ class WindowHandler {
           && c_state.command[9] == 'i'
           && c_state.command[10] == 'r'){
             // Initialise buffer to hold parameter
-            char param[COMMAND_MAX_LENGTH];
-            param[0] = 0;
+            char param1[COMMAND_MAX_LENGTH];
+            param1[0] = 0;
+            char param2[COMMAND_MAX_LENGTH];
+            param2[0] = 0;
             // Call function to get first parameter
-            get_command_first_argument(param, &c_state);
+            get_command_first_argument(param1, &c_state);
+            // Call function to get second parameter
+            get_command_second_argument(param2, &c_state);
             // Call function to create file
             char temp_path[FILENAME_MAX];
             // Check if path is absolute
-            if(param[0] == '/' || param[0] == '~'){
-              strcpy(temp_path, param);
+            if(param2[0] == '/' || param2[0] == '~'){
+              strcpy(temp_path, param2);
               parse_path(temp_path);
             }else{
               strcpy(temp_path, currdir);
               // Call function to get absolute path
-              get_child_path(temp_path, param);
+              get_child_path(temp_path, param2);
             }
+            // Call function to get absolute path
+            get_child_path(temp_path, param1);
             // Call function to create directory
             create_directory(temp_path);
             // Clear command
