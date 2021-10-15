@@ -21,7 +21,7 @@
 #define getcwd getcwd
 #endif
 // Local Dependencies
-#include "helpers.cpp"
+#include "../helpers.cpp"
 
 // Define struct for holding file info in human readable format
 struct file_info_hr {

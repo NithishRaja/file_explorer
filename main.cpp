@@ -12,7 +12,7 @@
 #include <termios.h>
 #include <string.h>
 // Local Dependencies
-#include "file_handler.cpp"
+#include "file_handler/file_handler.cpp"
 #include "path_parser/pp_wrapper.cpp"
 #include "window_state/window_state.cpp"
 #include "breadcrumb/breadcrumb.cpp"
