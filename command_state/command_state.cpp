@@ -77,3 +77,27 @@ void get_command_first_argument(char output_buffer[COMMAND_MAX_LENGTH], struct c
   }
   output_buffer[j] = 0;
 }
+
+// Function to get second argument in command
+void get_command_second_argument(char output_buffer[COMMAND_MAX_LENGTH], struct command_state* state){
+  output_buffer[0] = 0;
+  // Traverse command till first blank space is encountered
+  int i=0;
+  while(state->command[i] != ' ' && i<state->counter){
+    ++i;
+  }
+  // Traverse command till second blank space is encountered
+  ++i;
+  while(state->command[i] != ' ' && i<state->counter){
+    ++i;
+  }
+  // Traverse till third blank space is encountered and store it in output buffer
+  ++i;
+  int j=0;
+  while(state->command[i] != ' ' && i<state->counter){
+    output_buffer[j] = state->command[i];
+    ++j;
+    ++i;
+  }
+  output_buffer[j] = 0;
+}
