@@ -61,6 +61,7 @@ void get_command(char output_buffer[COMMAND_MAX_LENGTH], struct command_state* s
 
 // Function to get first argument in command
 void get_command_first_argument(char output_buffer[COMMAND_MAX_LENGTH], struct command_state* state){
+  output_buffer[0] = 0;
   // Traverse command till first blank space is encountered
   int i=0;
   while(state->command[i] != ' ' && i<state->counter){
@@ -74,4 +75,5 @@ void get_command_first_argument(char output_buffer[COMMAND_MAX_LENGTH], struct c
     ++j;
     ++i;
   }
+  output_buffer[j] = 0;
 }

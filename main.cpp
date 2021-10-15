@@ -89,6 +89,12 @@ int main(){
     char ch = getchar();
     // Check mode
     if(!c_state.command_mode_active){
+      // Move cursor to bottom
+      cout<<"\033["<<window.max_row<<";1H";
+      // Clear command
+      for(int i=0;i<window.max_col;++i){
+        cout<<" ";
+      }
       // Exit when q is pressed
       if(ch == 'q'){
         break;
@@ -234,11 +240,12 @@ int main(){
       }else if(ch == 10){
         // Check for goto command
         if(c_state.command[1] == 'g'
-         && c_state.command[2] == 'o'
-          && c_state.command[3] == 't'
-           && c_state.command[4] == 'o'){
+        && c_state.command[2] == 'o'
+        && c_state.command[3] == 't'
+        && c_state.command[4] == 'o'){
           // Initialise buffer to hold parameter
           char param[COMMAND_MAX_LENGTH];
+          param[0] = 0;
           // Call function to get first parameter
           get_command_first_argument(param, &c_state);
           char temp_path[FILENAME_MAX];
@@ -255,6 +262,8 @@ int main(){
           history.push(temp_path);
           // Call function to get list of files and directories
           list = get_dir_content(temp_path);
+          // Update current path
+          strcpy(currdir, temp_path);
           // Calculate list size
           list_size = list.size();
           // Call function to reset cursor
@@ -264,18 +273,39 @@ int main(){
           // Call function to print list
           print_list(list, window_start, window.max_row-1);
           cout<<"\033["<<window.y_coord<<";1H";
+          // Move cursor to bottom
+          cout<<"\033["<<window.max_row<<";1H";
+          for(int i=0;i<window.max_col;++i){
+            cout<<" ";
+          }
+          // Move cursor to original position
+          cout<<"\033["<<window.y_coord<<";1H";
+        }else if(c_state.command[1] == 's'
+        && c_state.command[2] == 'e'
+        && c_state.command[3] == 'a'
+        && c_state.command[4] == 'r'
+        && c_state.command[5] == 'c'
+        && c_state.command[6] == 'h'){
+          // Initialise buffer to hold parameter
+          char param[COMMAND_MAX_LENGTH];
+          param[0] = 0;
+          // Call function to get first parameter
+          get_command_first_argument(param, &c_state);
+          // Call function to search
+          bool found = search_entry(currdir, param);
+          // Print message
+          // Clear command
+          cout<<"\033["<<window.max_row<<";1H";
+          for(int i=0;i<window.max_col;++i){
+            cout<<" ";
+          }
+          cout<<"\033["<<window.max_row<<";1H";
+          cout<<found;
         }
         // Switch mode
         turn_off_command_mode(&c_state);
         // Call function to reset command state
         reset_command_state(&c_state);
-        // Move cursor to bottom
-        cout<<"\033["<<window.max_row<<";1H";
-        for(int i=0;i<window.max_col;++i){
-          cout<<" ";
-        }
-        // Move cursor to original position
-        cout<<"\033["<<window.y_coord<<";1H";
       }else if(ch == 0x7f){
         // Call function to remove last character in command
         update_command_pop(&c_state);
@@ -291,6 +321,8 @@ int main(){
         for(int i=0;i<c_state.counter;++i){
           cout<<c_state.command[i];
         }
+        // Move cursor to original position
+        cout<<"\033["<<window.y_coord<<";1H";
       }else{
         // Move cursor to bottom
         cout<<"\033["<<window.max_row<<";1H";

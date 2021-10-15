@@ -5,6 +5,7 @@
 
 // Dependencies
 #include <vector>
+#include <queue>
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -103,6 +104,91 @@ vector<struct file_info_hr> get_dir_content(char currdir[FILENAME_MAX]){
     cout<<"couldn't open dir\n";
   }
   return res;
+}
+
+// Function to search for given file or directory
+bool search_entry(char currdir[FILENAME_MAX], char name[4096]){
+  string cur_s = ".";
+  char cur[FILENAME_MAX];
+  strcpy(cur, cur_s.c_str());
+  string bac_s = "..";
+  char bac[FILENAME_MAX];
+  strcpy(bac, bac_s.c_str());
+  // Initialise flag
+  bool flag = false;
+  // Call function to get entries in current path
+  vector<struct file_info_hr> list = get_dir_content(currdir);
+  // Initialise queue to hold subdirectories
+  queue<string> q;
+  // Check list for required entry
+  for(int i=0;i<list.size();++i){
+    // // Skip entry '.'
+    // if(strcmp(curr, list[i].name) == 0){
+    //   continue;
+    // }
+    // // Skip entry '..'
+    // if(strcmp(back, list[i].name) == 0){
+    //   continue;
+    // }
+    //  && strcmp(curr, list[i].name) != 0 && strcmp(back, list[i].name) != 0
+    // Check if entry is a directory
+    // cout<<"---"<<list[i].name<<"----"<<name<<"----";
+    if(list[i].is_dir && strcmp(cur, list[i].name) != 0 && strcmp(bac, list[i].name) != 0){
+      // Get full path
+      string temp(currdir);
+      temp = temp+"/";
+      string tempname(list[i].name);
+      temp = temp+tempname;
+      // Add directory to queue
+      q.push(temp);
+    }
+    // if(strcmp(curr, list[i].name) == 0 || strcmp(back, list[i].name) == 0){
+    //   continue;
+    // }
+    // cout<<":::"<<list[i].name<<":::"<<name<<";;;;;";
+    // Exit loop if match is found
+    if(strcmp(name, list[i].name) == 0){
+      flag = true;
+      break;
+    }
+  }
+  // Iterate over all subdirectories
+  while(!q.empty() && !flag){
+    // Get full path
+    string tt = q.front();
+    q.pop();
+    char fullpath[4096];
+    strcpy(fullpath, tt.c_str());
+    // Call function to get entries in current path
+    list = get_dir_content(fullpath);
+    // Check list for required entry
+    for(int i=0;i<list.size();++i){
+      // // Skip entry '.'
+      // if(strcmp(curr, list[i].name) == 0){
+      //   continue;
+      // }
+      // // Skip entry '..'
+      // if(strcmp(back, list[i].name) == 0){
+      //   continue;
+      // }
+      // Check if entry is a directory
+      if(list[i].is_dir && strcmp(cur, list[i].name) != 0 && strcmp(bac, list[i].name) != 0){
+        // Get full path
+        string temp(fullpath);
+        temp = temp+"/";
+        string tempname(list[i].name);
+        temp = temp+tempname;
+        // Add directory to queue
+        q.push(temp);
+      }
+      // Exit loop if match is found
+      if(strcmp(name, list[i].name) == 0){
+        flag = true;
+        break;
+      }
+    }
+  }
+  return flag;
 }
 
 // Function to print files and directories in given window
