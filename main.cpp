@@ -233,7 +233,10 @@ int main(){
         cout<<"\033["<<window.y_coord<<";1H";
       }else if(ch == 10){
         // Check for goto command
-        if(c_state.command[1] == 'g' && c_state.command[2] == 'o' && c_state.command[3] == 't' && c_state.command[4] == 'o'){
+        if(c_state.command[1] == 'g'
+         && c_state.command[2] == 'o'
+          && c_state.command[3] == 't'
+           && c_state.command[4] == 'o'){
           // Initialise buffer to hold parameter
           char param[COMMAND_MAX_LENGTH];
           // Call function to get first parameter
