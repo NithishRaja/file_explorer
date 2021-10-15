@@ -6,6 +6,7 @@
 // Dependencies
 #include <iostream>
 #include <fstream>
+#include <stdio.h>
 #include <vector>
 #include <queue>
 #include <dirent.h>
@@ -222,10 +223,50 @@ void create_file(char path[FILENAME_MAX]){
   fs.close();
 }
 
+// Function to create a directory
 void create_directory(char path[FILENAME_MAX]){
   int res = mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 }
 
+// Function to delete a file
 void delete_file(char path[FILENAME_MAX]){
   int res = unlink(path);
+}
+
+// Function to delete a directory
+void delete_directory(char path[FILENAME_MAX]){
+  // Initialise variable to hold response
+  int res;
+  // Initialise variables to hold entries '.' and '..'
+  string cur_s = ".";
+  char cur[FILENAME_MAX];
+  strcpy(cur, cur_s.c_str());
+  string bac_s = "..";
+  char bac[FILENAME_MAX];
+  strcpy(bac, bac_s.c_str());
+  // Get entries in current directory
+  vector<struct file_info_hr> list = get_dir_content(path);
+  // Iterate over list
+  for(int i=0;i<list.size();++i){
+    // Ignore '.' and '..' entries
+    if(strcmp(cur, list[i].name) == 0 || strcmp(bac, list[i].name) == 0){
+      continue;
+    }
+    // Get full path of entry
+    string temp(path);
+    temp = temp+"/";
+    string tempname(list[i].name);
+    temp = temp+tempname;
+    char fullpath[4096];
+    strcpy(fullpath, temp.c_str());
+    // Check if entry is a directory
+    if(list[i].is_dir && strcmp(cur, list[i].name) != 0 && strcmp(bac, list[i].name) != 0){
+      // Call function to delete all entries inside directory
+      delete_directory(fullpath);
+    }
+    // Delete file/directory
+    res = remove(fullpath);
+  }
+  // Remove current path
+  res = remove(path);
 }
