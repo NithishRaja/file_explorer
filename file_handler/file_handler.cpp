@@ -270,3 +270,7 @@ void delete_directory(char path[FILENAME_MAX]){
   // Remove current path
   res = remove(path);
 }
+
+void rename_entry(char old[FILENAME_MAX], char updated[FILENAME_MAX]){
+  int res = rename(old, updated);
+}

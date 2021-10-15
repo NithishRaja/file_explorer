@@ -148,6 +148,18 @@ class WindowHandler {
     strcpy(currdir, dir);
   }
 
+  void convert_to_absolute_path(char temp_path[FILENAME_MAX], char param[COMMAND_MAX_LENGTH]){
+    // Check if path is absolute
+    if(param[0] == '/' || param[0] == '~'){
+      strcpy(temp_path, param);
+      parse_path(temp_path);
+    }else{
+      strcpy(temp_path, currdir);
+      // Call function to get absolute path
+      get_child_path(temp_path, param);
+    }
+  }
+
   void startREPL(){
     // Start REPL
     while(true){
@@ -250,15 +262,7 @@ class WindowHandler {
             // Call function to get first parameter
             get_command_first_argument(param, &c_state);
             char temp_path[FILENAME_MAX];
-            // Check if path is absolute
-            if(param[0] == '/' || param[0] == '~'){
-              strcpy(temp_path, param);
-              parse_path(temp_path);
-            }else{
-              strcpy(temp_path, currdir);
-              // Call function to get absolute path
-              get_child_path(temp_path, param);
-            }
+            convert_to_absolute_path(temp_path, param);
             move_to_path(temp_path);
             // Move cursor to bottom
             clear_command_line();
@@ -305,15 +309,7 @@ class WindowHandler {
             get_command_second_argument(param2, &c_state);
             // Call function to create file
             char temp_path[FILENAME_MAX];
-            // Check if path is absolute
-            if(param2[0] == '/' || param2[0] == '~'){
-              strcpy(temp_path, param2);
-              parse_path(temp_path);
-            }else{
-              strcpy(temp_path, currdir);
-              // Call function to get absolute path
-              get_child_path(temp_path, param2);
-            }
+            convert_to_absolute_path(temp_path, param2);
             // Call function to get absolute path
             get_child_path(temp_path, param1);
             // Call function to create file
@@ -342,15 +338,7 @@ class WindowHandler {
             get_command_second_argument(param2, &c_state);
             // Call function to create file
             char temp_path[FILENAME_MAX];
-            // Check if path is absolute
-            if(param2[0] == '/' || param2[0] == '~'){
-              strcpy(temp_path, param2);
-              parse_path(temp_path);
-            }else{
-              strcpy(temp_path, currdir);
-              // Call function to get absolute path
-              get_child_path(temp_path, param2);
-            }
+            convert_to_absolute_path(temp_path, param2);
             // Call function to get absolute path
             get_child_path(temp_path, param1);
             // Call function to create directory
@@ -376,15 +364,7 @@ class WindowHandler {
             get_command_first_argument(param, &c_state);
             // Call function to create file
             char temp_path[FILENAME_MAX];
-            // Check if path is absolute
-            if(param[0] == '/' || param[0] == '~'){
-              strcpy(temp_path, param);
-              parse_path(temp_path);
-            }else{
-              strcpy(temp_path, currdir);
-              // Call function to get absolute path
-              get_child_path(temp_path, param);
-            }
+            convert_to_absolute_path(temp_path, param);
             // Call function to delete file
             delete_file(temp_path);
             // Clear command
@@ -407,17 +387,34 @@ class WindowHandler {
             get_command_first_argument(param, &c_state);
             // Call function to create file
             char temp_path[FILENAME_MAX];
-            // Check if path is absolute
-            if(param[0] == '/' || param[0] == '~'){
-              strcpy(temp_path, param);
-              parse_path(temp_path);
-            }else{
-              strcpy(temp_path, currdir);
-              // Call function to get absolute path
-              get_child_path(temp_path, param);
-            }
+            convert_to_absolute_path(temp_path, param);
             // Call function to delete directory
             delete_directory(temp_path);
+            // Clear command
+            clear_command_line();
+            populate_screen(currdir);
+          }else if(c_state.command[1] == 'r'
+          && c_state.command[2] == 'e'
+          && c_state.command[3] == 'n'
+          && c_state.command[4] == 'a'
+          && c_state.command[5] == 'm'
+          && c_state.command[6] == 'e'){
+            // Initialise buffer to hold parameter
+            char param1[COMMAND_MAX_LENGTH];
+            param1[0] = 0;
+            char param2[COMMAND_MAX_LENGTH];
+            param2[0] = 0;
+            // Call function to get first parameter
+            get_command_first_argument(param1, &c_state);
+            // Call function to get second parameter
+            get_command_second_argument(param2, &c_state);
+            // Initialise buffer to hold full path
+            char temp_path1[FILENAME_MAX];
+            char temp_path2[FILENAME_MAX];
+            convert_to_absolute_path(temp_path1, param1);
+            convert_to_absolute_path(temp_path2, param2);
+            // Call function to rename entry
+            rename_entry(temp_path1, temp_path2);
             // Clear command
             clear_command_line();
             populate_screen(currdir);
